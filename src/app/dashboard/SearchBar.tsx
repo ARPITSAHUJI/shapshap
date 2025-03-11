@@ -57,11 +57,13 @@ export default function SearchBar({
             type="date"
             className="border rounded-lg px-4 py-2 flex-1"
             value={dateRange.start}
+            placeholder="Start Date"
             onChange={(e) => onDateRangeChange({ ...dateRange, start: e.target.value })}
           />
           <input
             type="date"
             className="border rounded-lg px-4 py-2 flex-1"
+            placeholder="End Date"
             value={dateRange.end}
             onChange={(e) => onDateRangeChange({ ...dateRange, end: e.target.value })}
           />
