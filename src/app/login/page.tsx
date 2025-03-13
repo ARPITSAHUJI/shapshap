@@ -24,16 +24,16 @@ const Login = () => {
   // Formik Hook
   const formik = useFormik({
     initialValues: {
-      username: "+2348130046340",
-      password: "123456",
+      username: "+2349012279032",
+      password: "12345678",
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         await login({
           ...values,
-          client_id: 20,
-          client_secret: "U1eB99o76s7JSg7EizYIj2gdtKERnRr8tPwBk2wRG2DIDLRV8C",
+          client_id: 16,
+          client_secret: "nA3hOG49MnjrcKCDJZn1ObCrbxI3Mn4Z5YvRwb8524HMkuNGxC",
           grant_type: "password",
         }).unwrap();
       } catch (err) {
