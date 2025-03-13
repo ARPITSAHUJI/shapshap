@@ -7,6 +7,7 @@ import CardDataStats from "./CardDetails";
 import { useGetAllOrdersQuery } from "@/store/order/orderApi";
 import withAuth from "@/components/common/withAuth";
 import Heading from "@/components/Utils/Heading";
+import Header from "@/components/Layouts/Header";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,17 +30,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!deliveryData?.orders) return;
+    console.log(deliveryData.order)
 
     const filtered = deliveryData.orders.filter((order: any) => {
       let failedOrders = 0;
       let canceledOrders = 0;
       let deliveredOrders = 0;
-      const matchesSearch = order.id
-        .toString()
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      // const matchesSearch = order.id
+      //   .toString()
+      //   .toLowerCase()
+      //   .includes(searchQuery.toLowerCase());
       const matchesStatus =
         selectedStatus === "all" || order.order_status === selectedStatus;
+
+        const matchesSearch =
+        order.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.delivery_address?.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.delivery_address?.contact_person_name?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesDate =
         (!dateRange.start ||
@@ -85,7 +92,8 @@ const Dashboard = () => {
         description="Deliveries List"
         keywords="ShapShap, AI, ML"
       />
-      <div className="min-h-screen bg-gray-50 p-4 sm:px-15 sm:py-8 ">
+      <Header/>
+      <div className="min-h-screen bg-gray-50 p-4 sm:px-10 md:px-15 sm:py-8 ">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow p-2 sm:p-6">
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-5">
