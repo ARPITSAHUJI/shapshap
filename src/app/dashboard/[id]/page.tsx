@@ -157,7 +157,7 @@ const DeliveryDetails = ({ params }: Props) => {
               </div>
 
               <div className={`flex justify-between pt-5 text-xs sm:text-sm absolute  w-full items-center ${
-    isDelivered ? "top-[-30px]" : "top-[-27px]"
+    isDelivered ? "top-[-30px]" : "top-[-25px] sm:top-[-27px]"
   }`}>
                 {filteredStatusOrder.map((order_status, index) => (
                   <div
