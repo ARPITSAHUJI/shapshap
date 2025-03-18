@@ -83,7 +83,7 @@ const DeliveryDetails = ({ params }: Props) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
-                     Delivery Address
+                    Delivery Address
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.delivery_address?.address +
@@ -115,8 +115,8 @@ const DeliveryDetails = ({ params }: Props) => {
                     Dropoff Location
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {delivery?.dropoff_locations[0]?.receiver_details?.address ||
-                      "N/A"}
+                    {delivery?.dropoff_locations[0]?.receiver_details
+                      ?.address || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -124,11 +124,15 @@ const DeliveryDetails = ({ params }: Props) => {
                     Time Delivered
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {deliveryTimeDelivered === "waiting" ? (
-                      <span className="text-yellow-500">Waiting</span>
-                    ) : (
-                      formatTime(deliveryTimeDelivered)
-                    )}
+                    {delivery?.order_status === "delivered" &&
+                    delivery?.updated_at  ? (
+                      formatTime(delivery?.updated_at)
+                    ) : delivery.order_status === "pending" ? (
+                      <span className="text-yellow-500">Pending</span>
+                    ) : delivery.order_status === "failed" ||
+                      delivery.order_status === "canceled" ? (
+                      <span className="text-red-500">Not Completed</span>
+                    ) : null}
                   </p>
                 </div>
               </div>
@@ -156,9 +160,11 @@ const DeliveryDetails = ({ params }: Props) => {
                 ))}
               </div>
 
-              <div className={`flex justify-between pt-5 text-xs sm:text-sm absolute  w-full items-center ${
-    isDelivered ? "top-[-30px]" : "top-[-25px] sm:top-[-27px]"
-  }`}>
+              <div
+                className={`flex justify-between pt-5 text-xs sm:text-sm absolute  w-full items-center ${
+                  isDelivered ? "top-[-30px]" : "top-[-25px] sm:top-[-27px]"
+                }`}
+              >
                 {filteredStatusOrder.map((order_status, index) => (
                   <div
                     key={order_status}

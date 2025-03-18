@@ -95,11 +95,15 @@ export default function DeliveryTable({
                   {formatTime(delivery.created_at)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {delivery.delivery_time ? (
-                    formatDate(delivery?.updated_at)
-                  ) : (
-                    <span className="text-yellow-500">Waiting</span>
-                  )}
+                  {delivery.order_status === "delivered" &&
+                  delivery.updated_at ? (
+                    formatTime(delivery.updated_at)
+                  ) : delivery.order_status === "pending" ? (
+                    <span className="text-yellow-500">Pending</span>
+                  ) : delivery.order_status === "failed" ||
+                    delivery.order_status === "canceled" ? (
+                    <span className="text-red-500">Not Completed</span>
+                  ) : <span className="text-red-500">We</span>}
                 </td>
               </tr>
             ))
