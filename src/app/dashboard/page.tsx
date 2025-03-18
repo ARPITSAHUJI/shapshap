@@ -30,41 +30,36 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!deliveryData?.orders) return;
-    console.log(deliveryData.order)
-
+    console.log(deliveryData.orders);
+  
     const filtered = deliveryData.orders.filter((order: any) => {
       let failedOrders = 0;
       let canceledOrders = 0;
       let deliveredOrders = 0;
-      // const matchesSearch = order.id
-      //   .toString()
-      //   .toLowerCase()
-      //   .includes(searchQuery.toLowerCase());
+  
       const matchesStatus =
         selectedStatus === "all" || order.order_status === selectedStatus;
-
-        const matchesSearch =
+  
+      const matchesSearch =
         order.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.delivery_address?.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.dropoff_locations[0]?.receiver_details.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.delivery_address?.contact_person_name?.toLowerCase().includes(searchQuery.toLowerCase());
-
+  
+      const orderDate = new Date(order.created_at);
+      const startDate = dateRange.start ? new Date(dateRange.start) : null;
+      const endDate = dateRange.end ? new Date(dateRange.end) : null;
+  
       const matchesDate =
-        (!dateRange.start ||
-          new Date(order.created_at) >= new Date(dateRange.start)) &&
-        (!dateRange.end ||
-          new Date(order.created_at) <= new Date(dateRange.end));
-      
-      // const totalDelivered  = deliveryData.orders.filter((order:Delivery) => order?.order_status = "delivered")
-      // if(totalDelivered && totalDelivered.length !== 0){
-      //   setTotalOrders(totalDelivered.length)
-
-      // }
+        (!startDate || orderDate >= startDate || orderDate.toDateString() === startDate.toDateString()) &&
+        (!endDate || orderDate <= endDate || orderDate.toDateString() === endDate.toDateString());
+  
       return matchesSearch && matchesStatus && matchesDate;
     });
-    setTotalOrders(deliveryData?.total_size)
-
+  
+    setTotalOrders(deliveryData?.total_size);
     setFilteredOrders(filtered);
   }, [searchQuery, selectedStatus, dateRange, deliveryData]);
+  
 
   useEffect(() => {
     if (!deliveryData?.orders) return;

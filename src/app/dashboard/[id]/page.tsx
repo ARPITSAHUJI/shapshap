@@ -83,7 +83,7 @@ const DeliveryDetails = ({ params }: Props) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
-                    Pickup Address
+                     Delivery Address
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.delivery_address?.address +
@@ -93,7 +93,7 @@ const DeliveryDetails = ({ params }: Props) => {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
-                    Customer Name
+                    Receiver Name
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.receiver_details?.contact_person_name || "N/A"}

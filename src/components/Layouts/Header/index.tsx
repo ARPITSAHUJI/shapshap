@@ -1,10 +1,14 @@
 "use client";
+import { useLoadUserQuery } from "@/store/actions/api/apiSlice";
 import { removeTokens } from "@/store/actions/helpers/authHelpers";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
   const router = useRouter();
+   const { data } = useLoadUserQuery({
+      refetchOnMountOrArgChange: true,
+    });
   const LogoutHandler = async () => {
     await removeTokens();
     const token = localStorage.getItem("accessToken");
@@ -25,14 +29,15 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3 2xsm:gap-7">
-          <a
-            href="mailto:info@shapshap.com"
+          {data && data?.email &&
+           <a
+            href={`mailto:i${data?.email}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-gray-800 rounded-md hidden sm:block"
           >
-            Support: info@shapshap.com
-          </a>
+            {data?.email}
+          </a>}
           <button
             onClick={LogoutHandler}
             className="px-4 py-2 bg-red-400 rounded-md"

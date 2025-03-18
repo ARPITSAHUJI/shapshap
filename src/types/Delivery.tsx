@@ -15,8 +15,14 @@ export interface Delivery {
   };
   dropoff_locations:[{
     status:string
+    receiver_details:{
+      address:string
+    }
   }]
   order_status: DeliveryStatus;
   delivery_time: string;
+  receiver_details:{
+    contact_person_name:string
+  }
 
 }

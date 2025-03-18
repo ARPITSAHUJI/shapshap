@@ -22,28 +22,9 @@
     endpoints: (builder) => ({
       loadUser: builder.query({
         query: () => ({
-          url: "api/v1/merchants/profile",
+          url: "/api/v1/store-details",
           method: "GET",
         }),
-        async onQueryStarted(arg, { queryFulfilled, dispatch }) {
-          try {
-            // Set loading state to true when request starts
-            dispatch(setLoading({state:true}));
-      
-            const result = await queryFulfilled;
-      
-            dispatch(
-              userLoggedIn({
-                accessToken: result.data.accessToken,
-                user: result.data.merchant,
-              })
-            );
-          } catch (error) {
-            dispatch(setLoading({state:false}));
-          } finally {
-            dispatch(setLoading({state:false}));
-          }
-        },
       }),
     }),
   });
