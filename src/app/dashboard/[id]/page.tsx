@@ -91,14 +91,7 @@ const DeliveryDetails = ({ params }: Props) => {
                       delivery?.delivery_address?.address_type || "N/A"}
                   </p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Receiver Name
-                  </h3>
-                  <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {delivery?.receiver_details?.contact_person_name || "N/A"}
-                  </p>
-                </div>
+
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
                     Time Created
@@ -112,11 +105,10 @@ const DeliveryDetails = ({ params }: Props) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
-                    Dropoff Location
+                    Sender Name
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {delivery?.dropoff_locations[0]?.receiver_details
-                      ?.address || "N/A"}
+                    {delivery?.receiver_details?.contact_person_name || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -125,7 +117,7 @@ const DeliveryDetails = ({ params }: Props) => {
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.order_status === "delivered" &&
-                    delivery?.updated_at  ? (
+                    delivery?.updated_at ? (
                       formatTime(delivery?.updated_at)
                     ) : delivery.order_status === "pending" ? (
                       <span className="text-yellow-500">Pending</span>
@@ -134,6 +126,34 @@ const DeliveryDetails = ({ params }: Props) => {
                       <span className="text-red-500">Not Completed</span>
                     ) : null}
                   </p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="mb-3">
+                <h3 className="text-sm font-medium text-gray-500">
+                  Dropoff Locations
+                </h3>
+                {/* <h1>{delivery?.dropoff_locations.length}</h1> */}
+                <div className="flex flex-nowrap w-full overflow-x-auto gap-5">
+                  {delivery?.dropoff_locations &&
+                    delivery.dropoff_locations !== 0 &&
+                    delivery?.dropoff_locations?.map((delivery: any) => (
+                      <div className="flex gap-[2px] flex-col my-2 border border-gray-300 p-2 rounded">
+                        <h5 className="text-sm text-gray-800 whitespace-nowrap truncate max-w-[220px] ">
+                          NAME:-{" "} <span className="text-gray-600">{delivery?.receiver_details?.contact_person_name}</span>
+                        </h5>
+                        <h5 className="text-sm text-gray-800 whitespace-nowrap truncate max-w-[220px] ">
+                          PHONE NO:-{" "} <span className="text-gray-600">{delivery?.receiver_details?.contact_person_number}</span>
+                        </h5>
+                        {/* <h5 className="text-sm text-gray-600">
+                          {delivery?.receiver_details?.contact_person_number}
+                        </h5> */}
+                        <p className="text-sm text-gray-800  max-w-[250px]">
+                         LOCATION: {" "} <span className="text-gray-600">{delivery?.receiver_details?.address || "N/A"}</span> 
+                        </p>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
