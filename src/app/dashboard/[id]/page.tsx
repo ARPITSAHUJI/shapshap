@@ -83,7 +83,7 @@ const DeliveryDetails = ({ params }: Props) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">
-                    Delivery Address
+                    Sender Address
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.delivery_address?.address +
@@ -135,22 +135,22 @@ const DeliveryDetails = ({ params }: Props) => {
                   Dropoff Locations
                 </h3>
                 {/* <h1>{delivery?.dropoff_locations.length}</h1> */}
-                <div className="flex flex-nowrap w-full overflow-x-auto gap-5">
+                <div className="flex flex-nowrap w-full overflow-x-auto gap-5 mt-2">
                   {delivery?.dropoff_locations &&
                     delivery.dropoff_locations !== 0 &&
                     delivery?.dropoff_locations?.map((delivery: any) => (
                       <div className="flex gap-[2px] flex-col my-2 border border-gray-300 p-2 rounded">
-                        <h5 className="text-sm text-gray-800 whitespace-nowrap truncate max-w-[220px] ">
-                          NAME:-{" "} <span className="text-gray-600">{delivery?.receiver_details?.contact_person_name}</span>
+                        <h5 className="text-sm text-gray-700 whitespace-nowrap truncate max-w-[220px] font-semibold ">
+                          NAME: {" "} <span className="text-gray-600 font-normal ">{delivery?.receiver_details?.contact_person_name}</span>
                         </h5>
-                        <h5 className="text-sm text-gray-800 whitespace-nowrap truncate max-w-[220px] ">
-                          PHONE NO:-{" "} <span className="text-gray-600">{delivery?.receiver_details?.contact_person_number}</span>
+                        <h5 className="text-sm text-gray-700 whitespace-nowrap truncate max-w-[220px] font-semibold ">
+                          PHONE NO: {" "} <span className="text-gray-600 font-normal">{delivery?.receiver_details?.contact_person_number}</span>
                         </h5>
                         {/* <h5 className="text-sm text-gray-600">
                           {delivery?.receiver_details?.contact_person_number}
                         </h5> */}
-                        <p className="text-sm text-gray-800  max-w-[250px]">
-                         LOCATION: {" "} <span className="text-gray-600">{delivery?.receiver_details?.address || "N/A"}</span> 
+                        <p className="text-sm text-gray-700  max-w-[250px] font-semibold ">
+                         LOCATION: {" "} <span className="text-gray-600 font-normal">{delivery?.receiver_details?.address || "N/A"}</span> 
                         </p>
                       </div>
                     ))}
