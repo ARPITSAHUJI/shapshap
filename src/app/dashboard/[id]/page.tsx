@@ -127,7 +127,8 @@ const DeliveryDetails = ({ params }: Props) => {
                     Time Created
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {formatTime(delivery?.created_at || "")}
+                    {isDelivered? formatTime(deliveredDate) : deliveryTimeDelivered}
+                    
                   </p>
                 </div>
               </div>
