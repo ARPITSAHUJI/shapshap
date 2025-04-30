@@ -1,14 +1,12 @@
 "use client";
-import React from "react";
-import { ArrowLeft, Check } from "lucide-react";
-import { DeliveryStatus } from "@/types/Delivery";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { useGetOrderQuery } from "@/store/order/orderApi";
 import withAuth from "@/components/common/withAuth";
 import Loader from "@/components/common/Loaders/Loader";
 import { formatTime } from "@/components/Utils/formatTime";
 import Heading from "@/components/Utils/Heading";
 import TripeHeader from "@/components/Layouts/Header/TripeHeader";
+import { Check } from "lucide-react";
 
 interface Props {
   params: {
@@ -16,14 +14,7 @@ interface Props {
   };
 }
 
-const statusOrder = [
-  "pending",
-  "accepted",
-  "picked up",
-  "delivered",
-  "failed",
-  "canceled",
-];
+const statusOrder = ["pending", "accepted", "picked_up", "delivered", "failed"];
 
 const DeliveryDetails = ({ params }: Props) => {
   const {
@@ -31,6 +22,61 @@ const DeliveryDetails = ({ params }: Props) => {
     isLoading,
     error,
   } = useGetOrderQuery({ id: params.id });
+  const [deliveredDate, setDeliveredDate] = useState(null);
+  const [isDelivered, setIsDelivered] = useState(null);
+
+  const orderStatusKey = [
+    { label: "pending", value: "pending" },
+    { label: "picked_up", value: "bpp" },
+    { label: "accepted", value: "failed" },
+    { label: "delivered", value: "delivered" },
+    { label: "failed", value: "failed" },
+  ];
+
+  const currentStatusIndex = statusOrder.indexOf(
+    delivery?.order_status || "pending"
+  );
+  const deliveryTimeDelivered = delivery?.deliveredAt || "waiting";
+  // const isDelivered = delivery?.order_status === "delivered";
+
+  // const isDelivered = delivery?.dropoff_locations.every(
+  //   (location: any) => location.status === "delivered"
+  // );
+
+  const filteredStatusOrder = isDelivered
+    ? statusOrder.filter(
+        (order_status) =>
+          order_status !== "failed" && order_status !== "canceled"
+      )
+    : statusOrder.filter(
+        (order_status) =>
+          order_status !== "canceled" && order_status !== "failed"
+      );
+
+  // const isCompleted = isDelivered || delivery?.order_status;
+
+  const deliveryStepIndex = filteredStatusOrder.findIndex(
+    (status) =>
+      delivery?.[status] &&
+      !delivery?.[filteredStatusOrder[filteredStatusOrder.indexOf(status) + 1]]
+  );
+
+  useEffect(() => {
+    if (delivery?.dropoff_locations && delivery.dropoff_locations.length > 0) {
+      const isDelivered = delivery?.dropoff_locations.every(
+        (location: any) => location.status === "delivered"
+      );
+      if (isDelivered) {
+        setIsDelivered(isDelivered);
+        const lastIndex = delivery.dropoff_locations.length - 1;
+        const lastDelivery = delivery.dropoff_locations[lastIndex];
+
+        console.log(lastDelivery?.updated_at);
+
+        setDeliveredDate(lastDelivery?.updated_at);
+      }
+    }
+  }, [delivery]);
 
   if (isLoading) {
     return (
@@ -47,22 +93,6 @@ const DeliveryDetails = ({ params }: Props) => {
       </div>
     );
   }
-
-  const currentStatusIndex = statusOrder.indexOf(
-    delivery?.order_status || "pending"
-  );
-  const deliveryTimeDelivered = delivery?.deliveredAt || "waiting";
-  const isDelivered = delivery?.order_status === "delivered";
-
-  const filteredStatusOrder = isDelivered
-    ? statusOrder.filter(
-        (order_status) =>
-          order_status !== "failed" && order_status !== "canceled"
-      )
-    : statusOrder.filter(
-        (order_status) =>
-          order_status !== "canceled" && order_status !== "failed"
-      );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -141,16 +171,25 @@ const DeliveryDetails = ({ params }: Props) => {
                     delivery?.dropoff_locations?.map((delivery: any) => (
                       <div className="flex gap-[2px] flex-col my-2 border border-gray-300 p-2 rounded">
                         <h5 className="text-sm text-gray-700 whitespace-nowrap truncate max-w-[220px] font-semibold ">
-                          NAME: {" "} <span className="text-gray-600 font-normal ">{delivery?.receiver_details?.contact_person_name}</span>
+                          NAME:{" "}
+                          <span className="text-gray-600 font-normal ">
+                            {delivery?.receiver_details?.contact_person_name}
+                          </span>
                         </h5>
                         <h5 className="text-sm text-gray-700 whitespace-nowrap truncate max-w-[220px] font-semibold ">
-                          PHONE NO: {" "} <span className="text-gray-600 font-normal">{delivery?.receiver_details?.contact_person_number}</span>
+                          PHONE NO:{" "}
+                          <span className="text-gray-600 font-normal">
+                            {delivery?.receiver_details?.contact_person_number}
+                          </span>
                         </h5>
                         {/* <h5 className="text-sm text-gray-600">
                           {delivery?.receiver_details?.contact_person_number}
                         </h5> */}
                         <p className="text-sm text-gray-700  max-w-[250px] font-semibold ">
-                         LOCATION: {" "} <span className="text-gray-600 font-normal">{delivery?.receiver_details?.address || "N/A"}</span> 
+                          LOCATION:{" "}
+                          <span className="text-gray-600 font-normal">
+                            {delivery?.receiver_details?.address || "N/A"}
+                          </span>
                         </p>
                       </div>
                     ))}
@@ -163,67 +202,88 @@ const DeliveryDetails = ({ params }: Props) => {
             <h2 className="text-lg font-semibold text-gray-900 sm:mb-10 mb-5">
               Delivery Status
             </h2>
-            <div className="relative sm:mx-6 mx-0">
-              <div className="overflow-hidden h-[6px] mb-10 text-xs flex rounded px-6">
-                {filteredStatusOrder.map((order_status) => (
-                  <div
-                    key={order_status}
-                    className={`shadow-none flex flex-col text-center whitespace-nowrap justify-center transition-all duration-300 ${
-                      isDelivered || delivery?.[order_status]
-                        ? "bg-blue-500"
-                        : "bg-gray-300"
-                    }`}
-                    style={{
-                      width: `${100 / filteredStatusOrder.length}%`,
-                    }}
-                  />
-                ))}
-              </div>
-
-              <div
-                className={`flex justify-between pt-5 text-xs sm:text-sm absolute  w-full items-center ${
-                  isDelivered ? "top-[-30px]" : "top-[-25px] sm:top-[-27px]"
-                }`}
-              >
-                {filteredStatusOrder.map((order_status, index) => (
-                  <div
-                    key={order_status}
-                    className={`flex flex-col items-center ${
-                      delivery?.[order_status] || isDelivered
-                        ? order_status === "canceled"
-                          ? "text-yellow-500"
-                          : order_status === "failed"
-                          ? "text-red-500"
-                          : order_status === "pending"
-                          ? "text-blue-500"
-                          : order_status === "delivered"
-                          ? "text-green-500"
-                          : "text-blue-500"
-                        : "text-gray-400"
-                    }`}
-                  >
+            <div className="mx-10">
+              <div className="relative sm:mx-6  mb-5">
+                <div className="overflow-hidden h-[6px] mb-10 text-xs flex rounded ">
+                  {filteredStatusOrder.map((order_status) => (
                     <div
-                      className={`relative transition-all duration-300 mb-1 flex items-center justify-center ${
+                      key={order_status}
+                      className={`shadow-none flex flex-col text-center whitespace-nowrap justify-center transition-all duration-300 ${
+                        (isDelivered && order_status === "delivered") ||
+                        delivery?.[order_status]
+                          ? "bg-blue-500"
+                          : "bg-gray-300"
+                      }`}
+                      style={{
+                        width: `${100 / filteredStatusOrder.length}%`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <div
+                  className={`flex justify-between pt-5 text-xs sm:text-sm absolute  w-full items-center ${
+                    isDelivered ? "top-[-30px]" : "top-[-25px] sm:top-[-27px]"
+                  }`}
+                >
+                  {filteredStatusOrder.map((order_status, index) => (
+                    <div
+                      key={order_status}
+                      className={`flex flex-col relative ${
                         delivery?.[order_status] || isDelivered
-                          ? order_status === "canceled"
-                            ? "bg-yellow-500"
-                            : order_status === "failed"
-                            ? "bg-red-500"
+                          ? order_status === "failed"
+                            ? "text-red-500"
+                            : order_status === "pending"
+                            ? "text-blue-500"
                             : order_status === "delivered"
-                            ? "bg-green-500 w-6 h-6 sm:w-7 sm:h-7"
-                            : "bg-blue-500"
-                          : "bg-gray-400"
-                      } w-4 h-4 sm:w-5 sm:h-5 rounded-full`}
+                            ? "text-green-500"
+                            : "text-blue-500"
+                          : "text-gray-400"
+                      }`}
                     >
-                      {isDelivered && order_status === "delivered" && (
-                        <Check className="text-white w-4 h-4 sm:w-5 sm:h-5" />
-                      )}
+                      <div
+                        className={`relative transition-all duration-300 mb-1 flex items-center justify-center ${
+                          delivery?.[order_status] || isDelivered
+                            ? order_status === "canceled"
+                              ? "bg-yellow-500"
+                              : order_status === "failed"
+                              ? "bg-red-500"
+                              : order_status === "delivered" && isDelivered
+                              ? "bg-green-500 w-6 h-6 sm:w-7 sm:h-7"
+                              : "bg-blue-500"
+                            : "bg-gray-400"
+                        } w-4 h-4 sm:w-5 sm:h-5 rounded-full`}
+                      >
+                        {isDelivered && order_status === "delivered" && (
+                          <Check className="text-white w-4 h-4 sm:w-5 sm:h-5" />
+                        )}
+                      </div>
+                      <div className="absolute top-7 left-[-60px]  text-center whitespace-nowrap text-[10px] sm:text-sm font-medium capitalize min-w-fit">
+                        {order_status === "pending"
+                          ? "Bpp"
+                          : order_status === "accepted"
+                          ? "Processing"
+                          : order_status === "picked_up"
+                          ? "Transit"
+                          : order_status === "delivered"
+                          ? "Delivered"
+                          : order_status === "failed"
+                          ? "Failed"
+                          : order_status}
+                        {delivery?.[order_status] &&
+                          delivery?.[order_status] !== null &&
+                          delivery?.order_status !== "delivered" && (
+                            <div className=" text-nowrap">
+                              {formatTime(delivery?.[order_status])}
+                            </div>
+                          )}
+                        {delivery?.order_status == "delivered" && (
+                          <div>{formatTime(deliveredDate)}</div>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-[10px] sm:text-sm font-medium capitalize">
-                      {order_status}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
