@@ -66,14 +66,17 @@ const DeliveryDetails = ({ params }: Props) => {
       const isDelivered = delivery?.dropoff_locations.every(
         (location: any) => location.status === "delivered"
       );
-      if (isDelivered) {
+      if (isDelivered && Array.isArray(delivery?.dropoff_locations) && delivery.dropoff_locations.length > 0) {
         setIsDelivered(isDelivered);
+      
         const lastIndex = delivery.dropoff_locations.length - 1;
         const lastDelivery = delivery.dropoff_locations[lastIndex];
-
-        console.log(lastDelivery?.updated_at);
-
-        setDeliveredDate(lastDelivery?.updated_at);
+      
+        if (lastDelivery?.updated_at) {
+          setDeliveredDate(lastDelivery.updated_at);
+        } else {
+          console.warn("No updated_at found in the last dropoff location");
+        }
       }
     }
   }, [delivery]);
@@ -127,7 +130,7 @@ const DeliveryDetails = ({ params }: Props) => {
                     Time Created
                   </h3>
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
-                    {isDelivered? formatTime(deliveredDate) : deliveryTimeDelivered}
+                    { formatTime(delivery?.created_at) }
                     
                   </p>
                 </div>
@@ -149,7 +152,7 @@ const DeliveryDetails = ({ params }: Props) => {
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.order_status === "delivered" &&
                     delivery?.updated_at ? (
-                      formatTime(delivery?.updated_at)
+                      formatTime(deliveredDate)
                     ) : delivery.order_status === "pending" ? (
                       <span className="text-yellow-500">Pending</span>
                     ) : delivery.order_status === "failed" ||
@@ -273,12 +276,12 @@ const DeliveryDetails = ({ params }: Props) => {
                           : order_status}
                         {delivery?.[order_status] &&
                           delivery?.[order_status] !== null &&
-                          delivery?.order_status !== "delivered" && (
+                          order_status !== "delivered" && (
                             <div className=" text-nowrap">
                               {formatTime(delivery?.[order_status])}
                             </div>
                           )}
-                        {delivery?.order_status == "delivered" && (
+                        {order_status === "delivered" && (
                           <div>{formatTime(deliveredDate)}</div>
                         )}
                       </div>
