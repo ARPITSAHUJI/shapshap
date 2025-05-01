@@ -7,6 +7,7 @@ import { formatTime } from "@/components/Utils/formatTime";
 import Heading from "@/components/Utils/Heading";
 import TripeHeader from "@/components/Layouts/Header/TripeHeader";
 import { Check } from "lucide-react";
+import { getMostRecentUpdatedAt } from "@/components/Utils/getMostRecentDate";
 
 interface Props {
   params: {
@@ -152,7 +153,7 @@ const DeliveryDetails = ({ params }: Props) => {
                   <p className="mt-1 sm:text-lg text-base text-gray-900">
                     {delivery?.order_status === "delivered" &&
                     delivery?.updated_at ? (
-                      formatTime(deliveredDate)
+                      getMostRecentUpdatedAt(delivery.dropoff_locations)
                     ) : delivery.order_status === "pending" ? (
                       <span className="text-yellow-500">Pending</span>
                     ) : delivery.order_status === "failed" ||
@@ -212,7 +213,7 @@ const DeliveryDetails = ({ params }: Props) => {
                   {filteredStatusOrder.map((order_status) => (
                     <div
                       key={order_status}
-                      className={`shadow-none flex flex-col text-center whitespace-nowrap justify-center transition-all duration-300 ${
+                      className={`shadow-none flex flex-col text-center  whitespace-nowrap justify-center transition-all duration-300 ${
                         (isDelivered && order_status === "delivered") ||
                         delivery?.[order_status]
                           ? "bg-blue-500"
@@ -233,7 +234,7 @@ const DeliveryDetails = ({ params }: Props) => {
                   {filteredStatusOrder.map((order_status, index) => (
                     <div
                       key={order_status}
-                      className={`flex flex-col relative ${
+                      className={`flex flex-col relative  ${
                         delivery?.[order_status] || isDelivered
                           ? order_status === "failed"
                             ? "text-red-500"
@@ -262,7 +263,7 @@ const DeliveryDetails = ({ params }: Props) => {
                           <Check className="text-white w-4 h-4 sm:w-5 sm:h-5" />
                         )}
                       </div>
-                      <div className="absolute top-7 left-[-60px]  text-center whitespace-nowrap text-[10px] sm:text-sm font-medium capitalize min-w-fit">
+                      <div className={`absolute top-7   whitespace-nowrap text-[10px] sm:text-sm font-medium capitalize  ${delivery?.[order_status] && order_status === "delivered" ? "sm:left-[-60px] sm:min-w-fit sm:text-center left-[-20px]   text-center" : "left-[-20px]  w-14 text-center"}`}>
                         {order_status === "pending"
                           ? "Bpp"
                           : order_status === "accepted"
@@ -277,12 +278,12 @@ const DeliveryDetails = ({ params }: Props) => {
                         {delivery?.[order_status] &&
                           delivery?.[order_status] !== null &&
                           order_status !== "delivered" && (
-                            <div className=" text-nowrap">
+                            <div className=" absolute left-[-30px] text-nowrap text-center hidden md:block">
                               {formatTime(delivery?.[order_status])}
                             </div>
                           )}
-                        {order_status === "delivered" && (
-                          <div>{formatTime(deliveredDate)}</div>
+                        {delivery?.order_status == "delivered" && order_status === "delivered"  && (
+                          <div className="hidden md:block absolute left-[-30px]">{formatTime(deliveredDate)}</div>
                         )}
                       </div>
                     </div>

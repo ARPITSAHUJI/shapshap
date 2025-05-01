@@ -33,6 +33,7 @@ const TableRowLoader = () => {
       <rect x="20%" y="85" rx="4" ry="4" width="25%" height="12" />
       <rect x="50%" y="85" rx="4" ry="4" width="20%" height="12" />
       <rect x="75%" y="85" rx="4" ry="4" width="15%" height="12" />
+      
     </ContentLoader>
   );
 };

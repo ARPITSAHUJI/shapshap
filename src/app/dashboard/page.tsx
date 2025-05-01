@@ -1,6 +1,6 @@
 "use client";
 import { Delivery, DeliveryStatus } from "@/types/Delivery";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DeliveryTable from "./DeliveryTable";
 import SearchBar from "./SearchBar";
 import CardDataStats from "./CardDetails";
@@ -8,6 +8,7 @@ import { useGetAllOrdersQuery } from "@/store/order/orderApi";
 import withAuth from "@/components/common/withAuth";
 import Heading from "@/components/Utils/Heading";
 import Header from "@/components/Layouts/Header";
+import { Pagination } from "@/components/common/Pagination";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,45 +21,21 @@ const Dashboard = () => {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   // const [data, setData] = useState<{ orders: any[] } | null>(null);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [offset, setOffset] = useState(0);
 
-  const { data: deliveryData , isLoading } = useGetAllOrdersQuery({
+
+  const { data: deliveryData, isLoading, isFetching } = useGetAllOrdersQuery({
+    query: searchQuery,
+    status: selectedStatus !== "all" ? selectedStatus : undefined,
+    startDate: dateRange.start || undefined,
+    endDate: dateRange.end || undefined,
+    limit,       // or use a state variable if you want dynamic pagination
+    offset,       // update this for pagination
+  }, {
     refetchOnMountOrArgChange: true,
   });
-  console.log(deliveryData);
-
-  const [filteredOrders, setFilteredOrders] = useState([]);
-
-  useEffect(() => {
-    if (!deliveryData?.orders) return;
-    console.log(deliveryData.orders);
   
-    const filtered = deliveryData.orders.filter((order: any) => {
-      let failedOrders = 0;
-      let canceledOrders = 0;
-      let deliveredOrders = 0;
-  
-      const matchesStatus =
-        selectedStatus === "all" || order.order_status === selectedStatus;
-  
-      const matchesSearch =
-        order.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.dropoff_locations[0]?.receiver_details.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.delivery_address?.contact_person_name?.toLowerCase().includes(searchQuery.toLowerCase());
-  
-      const orderDate = new Date(order.created_at);
-      const startDate = dateRange.start ? new Date(dateRange.start) : null;
-      const endDate = dateRange.end ? new Date(dateRange.end) : null;
-  
-      const matchesDate =
-        (!startDate || orderDate >= startDate || orderDate.toDateString() === startDate.toDateString()) &&
-        (!endDate || orderDate <= endDate || orderDate.toDateString() === endDate.toDateString());
-  
-      return matchesSearch && matchesStatus && matchesDate;
-    });
-  
-    setTotalOrders(deliveryData?.total_size);
-    setFilteredOrders(filtered);
-  }, [searchQuery, selectedStatus, dateRange, deliveryData]);
   
 
   useEffect(() => {
@@ -72,12 +49,30 @@ const Dashboard = () => {
        // Counting orders by status
        if (order.order_status === "failed") failedDeliveries++;
        if (order.order_status === "canceled") canceledDeliveries++;
-       if (order.order_status === "delivered") deliveredDeliveries++;
+       if (order.order_status === "delivered"){
+        deliveredDeliveries++
+       } 
+
     });
     setTotalFailedDeliveries(failedDeliveries || 0)
     setTotalCanceledDeliveries(canceledDeliveries || 0)
     setTotalDeliveredDeliveries( deliveredDeliveries || 0)
   }, [deliveryData]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    setOffset(0); // Reset pagination
+  }, []);
+  
+  const handleStatusChange = useCallback((value: DeliveryStatus | "all") => {
+    setSelectedStatus(value);
+    setOffset(0);
+  }, []);
+  
+  const handleDateRangeChange = useCallback((range: { start: string; end: string }) => {
+    setDateRange(range);
+    setOffset(0);
+  }, []);
 
   return (
     <div>
@@ -115,12 +110,13 @@ const Dashboard = () => {
               searchQuery={searchQuery}
               selectedStatus={selectedStatus}
               dateRange={dateRange}
-              onSearchChange={setSearchQuery}
-              onStatusChange={setSelectedStatus}
-              onDateRangeChange={setDateRange}
+              onSearchChange={handleSearchChange}
+              onStatusChange={handleStatusChange}
+              onDateRangeChange={handleDateRangeChange}
             />
 
-            <DeliveryTable deliveries={filteredOrders || []} isLoading={isLoading} />
+            <DeliveryTable deliveries={ deliveryData?.orders|| []} isLoading={isFetching} />
+            <Pagination currentPage={offset} totalItems={30} totalPages={3} itemsPerPage={limit} onPageChange={setOffset}/>
           </div>
         </div>
       </div>

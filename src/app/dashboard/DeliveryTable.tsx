@@ -2,6 +2,7 @@
 import TableRowLoader from "@/components/common/Loaders/TableRowLoader";
 import { formatDate } from "@/components/Utils/formatDate";
 import { formatTime } from "@/components/Utils/formatTime";
+import { getMostRecentUpdatedAt } from "@/components/Utils/getMostRecentDate";
 import { Delivery, DeliveryStatus } from "@/types/Delivery";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -96,14 +97,16 @@ export default function DeliveryTable({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {delivery.order_status === "delivered" &&
-                  delivery.updated_at ? (
-                    formatTime(delivery.updated_at)
+                  delivery.dropoff_locations?.length > 0 ? (
+                    getMostRecentUpdatedAt(delivery.dropoff_locations)
                   ) : delivery.order_status === "pending" ? (
                     <span className="text-yellow-500">Pending</span>
                   ) : delivery.order_status === "failed" ||
                     delivery.order_status === "canceled" ? (
                     <span className="text-red-500">Not Completed</span>
-                  ) : <span className="text-red-500">We</span>}
+                  ) : (
+                    <span className="text-red-500">N/A</span>
+                  )}
                 </td>
               </tr>
             ))

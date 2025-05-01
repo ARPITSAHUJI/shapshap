@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Search } from 'lucide-react';
+import debounce from 'lodash/debounce';
 import { DeliveryStatus } from '@/types/Delivery';
 
 interface SearchBarProps {
@@ -22,6 +23,23 @@ export default function SearchBar({
   onStatusChange,
   onDateRangeChange,
 }: SearchBarProps) {
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+
+  // Debounced function
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      onSearchChange(query);
+    }, 500),
+    [onSearchChange]
+  );
+
+  useEffect(() => {
+    debouncedSearch(localQuery);
+    return () => {
+      debouncedSearch.cancel(); // Cleanup on unmount
+    };
+  }, [localQuery, debouncedSearch]);
+
   return (
     <div className="flex flex-col gap-4 mb-6 w-full">
       {/* Search Input */}
@@ -29,10 +47,10 @@ export default function SearchBar({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <input
           type="text"
-          placeholder="Search by ID, Address, or Sender Name..."  
+          placeholder="Search by ID, Address, or Sender Name..."
           className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
         />
       </div>
 
@@ -49,8 +67,9 @@ export default function SearchBar({
             <option value="all">All Status</option>
             <option value="failed">Failed</option>
             <option value="pending">Pending</option>
-            <option value="canceled">Canceled</option>
+            <option value="handover">handover</option>
             <option value="delivered">Delivered</option>
+            <option value="picked_up">picked_up</option>
           </select>
         </div>
 
