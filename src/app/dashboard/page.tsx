@@ -12,17 +12,12 @@ import { Pagination } from "@/components/common/Pagination";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [totalFailedDeliveries, setTotalFailedDeliveries] = useState(0)
-  const [totalCanceledDeliveries, setTotalCanceledDeliveries] = useState(0)
-  const [totalDeliveredDeliveries, setTotalDeliveredDeliveries] = useState(0)
   const [selectedStatus, setSelectedStatus] = useState<DeliveryStatus | "all">(
     "all"
   );
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
-  // const [data, setData] = useState<{ orders: any[] } | null>(null);
-  const [totalOrders, setTotalOrders] = useState(0);
   const [limit, setLimit] = useState(10);
-  const [offset, setOffset] = useState(0);
+  const [offset, setOffset] = useState(1);
 
 
   const { data: deliveryData, isLoading, isFetching } = useGetAllOrdersQuery({
@@ -40,23 +35,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!deliveryData?.orders) return;
-    let failedDeliveries = 0;
-    let canceledDeliveries = 0;
-    let deliveredDeliveries = 0;
+    
 
-    const filtered = deliveryData.orders.filter((order: any) => {
-      
-       // Counting orders by status
-       if (order.order_status === "failed") failedDeliveries++;
-       if (order.order_status === "canceled") canceledDeliveries++;
-       if (order.order_status === "delivered"){
-        deliveredDeliveries++
-       } 
-
-    });
-    setTotalFailedDeliveries(failedDeliveries || 0)
-    setTotalCanceledDeliveries(canceledDeliveries || 0)
-    setTotalDeliveredDeliveries( deliveredDeliveries || 0)
   }, [deliveryData]);
 
   const handleSearchChange = useCallback((value: string) => {
@@ -89,19 +69,19 @@ const Dashboard = () => {
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-5">
               <CardDataStats
                 title="OnGoing Trips"
-                total={totalOrders}
+                total={deliveryData?.pending || 0}
                 color="bg-blue-400"
                 isLoading={isLoading}
               />
               <CardDataStats
                 title="Canceled Trips"
-                total={totalCanceledDeliveries}
+                total={deliveryData?.failed || 0}
                 color="bg-red-300"
                 isLoading={isLoading}
               />
               <CardDataStats
                 title="Completed Trips"
-                total={totalDeliveredDeliveries}
+                total={deliveryData?.delivered || 0}
                 color="bg-green-400"
                 isLoading={isLoading}
               />
@@ -116,7 +96,9 @@ const Dashboard = () => {
             />
 
             <DeliveryTable deliveries={ deliveryData?.orders|| []} isLoading={isFetching} />
-            <Pagination currentPage={offset} totalItems={30} totalPages={3} itemsPerPage={limit} onPageChange={setOffset}/>
+            { deliveryData?.orders &&
+            <Pagination currentPage={offset} totalItems={deliveryData?.total_orders} totalPages={Math.ceil(deliveryData?.total_orders / deliveryData?.limit)} itemsPerPage={limit} onPageChange={setOffset}/>
+            }
           </div>
         </div>
       </div>
